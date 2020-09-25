@@ -47,7 +47,7 @@ class MyApp(QWidget):
         self.setLayout(vbox)
         self.setWindowTitle('일련번호 추출 프로그램')
         self.setGeometry(300, 300, 300, 300)
-        self.resize(400, 150)
+        self.resize(600, 150)
         self.center()
         self.show()
         
@@ -81,19 +81,20 @@ class MyApp(QWidget):
         if dialog.exec_():
             dname = dialog.selectedFiles()
         global path
-        path = dname[0] + '/'
+        path = dname[0] + '/'   # 저장소 경로
         label.setText(path)
         btn3.setVisible(False)
         btn4.setVisible(True)
         
     def clickedButton4(self):   # 일련번호 추출
-        global guideword_df
-        i = 1
+        i = 1   # 분할해서 내보낼 색인어 파일의 넘버
         
         article_df = pd.read_csv(articlefilename, encoding = 'UTF-8-sig') # 기사 취합본 파일 불러오기
-        guideword_df = pd.read_csv(guidewordfilename, encoding = 'UTF-8-sig')    # 색인어 파일 불러오기(일련번호 추출 후 취합은 다시 guideword_df에)
+        guideword_df = pd.read_csv(guidewordfilename, encoding = 'UTF-8-sig')    # 색인어 파일 불러오기
         guideword_list = list(guideword_df) # 색인어를 리스트로
-        guideword_df = pd.DataFrame()
+        guideword_df = None     # 색인어 불러온 데이터 프레임 비우기
+        
+        serialnumber_df = pd.DataFrame()   # 최종적으로 파일로 내보낼 색인어+일련번호가 저장될 데이터프레임
         
         for word_list in guideword_list:
             serialnumber = list()  # 색인어를 colname으로 갖는, 추출된 일련번호를 저장할 변수
@@ -115,12 +116,12 @@ class MyApp(QWidget):
             
             guideword = str.join('ㆍ', word_list)
             serialnumber = pd.Series(serialnumber, name = guideword)   # 추출된 일련번호 리스트를 시리즈로
-            guideword_df = pd.concat([guideword_df, serialnumber], axis = 1)   # 색인어 데이터프레임에 추출된 일련번호를 한 열에 추가
+            serialnumber_df = pd.concat([serialnumber_df, serialnumber], axis = 1)   # 색인어 데이터프레임에 추출된 일련번호를 한 열에 추가
             
-            if guideword_df.count().sum() > 5000:  # 데이터 수가 5000을 넘어가면 내보낸 후 이어서 추출
+            if serialnumber_df.count().sum() > 5000:  # 데이터 수가 5000을 넘어가면 내보낸 후 이어서 추출
                 save_path = path + '색인어' + str(i) + '.csv'
-                guideword_df.to_csv(save_path, index = False, encoding = 'UTF-8-sig')
-                guideword_df = pd.DataFrame()
+                serialnumber_df.to_csv(save_path, index = False, encoding = 'UTF-8-sig')
+                serialnumber_df = pd.DataFrame()
                 i += 1
         
         article_df = None
