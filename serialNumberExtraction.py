@@ -90,13 +90,14 @@ class MyApp(QWidget):
         i = 1   # 분할해서 내보낼 색인어 파일의 넘버
         
         article_df = pd.read_csv(articlefilename, encoding = 'UTF-8-sig') # 기사 취합본 파일 불러오기
+        article_df['일련번호'] = article_df['일련번호'].astype(str)     # 일련번호 열의 데이터타입을 정수에서 문자열로
         guideword_list = pd.read_csv(guidewordfilename, encoding = 'UTF-8-sig')    # 색인어 파일 불러오기
         guideword_list = list(guideword_list) # 데이터프레임에서 리스트로
         
         serialnumber_df = pd.DataFrame()   # 최종적으로 파일로 내보낼 색인어+일련번호가 저장될 데이터프레임
         
         for word_list in guideword_list:
-            serialnumber_list = list()  # 최종적으로 색인어를 colname으로 갖는, 추출된 일련번호 시리즈를 저장할 변수
+            serialnumber_list = list()  # 색인어가 포함된 기사의 일련번호를 담을 리스트
             word_list = str.split(word_list, '/')   # 슬래시를 기준으로 실제 검색할 단어 리스트 생성
             
             for word in word_list:
@@ -113,16 +114,23 @@ class MyApp(QWidget):
                     continue
                 serialnumber_list.extend(list(tmp_list['일련번호'])) # 추출된 데이터프레임에서 '일련번호' 열만 리스트로 만들어 일련번호 리스트에 추가
             
-            guideword = str.join('ㆍ', word_list)    # /(슬래시)로 나눈 단어들을 ㆍ(중점)으로 이어줌 == 원래 색인어 파일에 있던 색인어의 형태로 돌려줌
+            guideword = str.join('ㆍ', word_list)    # /(슬래시)로 나눈 단어들을 ㆍ(중점)으로 이어줌 == 색인어 파일에 있던 원래 색인어의 형태로 돌려줌
+            serialnumber_list = list(set(serialnumber_list)) # 추출된 일련번호들의 중복 제거
+            serialnumber_list.sort()    # 중복 제거 된 일련번호 오름차순 정렬
             serialnumber_list = pd.Series(serialnumber_list, name = guideword)   # 추출된 일련번호 리스트를 시리즈로
             serialnumber_df = pd.concat([serialnumber_df, serialnumber_list], axis = 1)   # 일련번호 데이터프레임에 추출된 일련번호 한 열 추가
             
             if serialnumber_df.count().sum() > 5000:  # 데이터 수가 5000을 넘어가면 내보낸 후 이어서 추출
-                save_path = path + '색인어' + str(i) + '.csv'
+                save_path = path + '일련번호' + str(i) + '.csv'
                 serialnumber_df.to_csv(save_path, index = False, encoding = 'UTF-8-sig')
                 serialnumber_df = pd.DataFrame()
                 i += 1
         
+        if serialnumber_df.count().sum() > 0: # 모든 반복이 끝나고 남은 데이터프레임 내보내기
+            save_path = path + '일련번호' + str(i) + '.csv'
+            serialnumber_df.to_csv(save_path, index = False, encoding = 'UTF-8-sig')
+            serialnumber_df = pd.DataFrame()
+            
         article_df = None
         btn4.setEnabled(False)
         label.setText('추출 및 저장 완료')
