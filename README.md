@@ -1,5 +1,5 @@
 # SerialNumberExtract  
-간단한 프로그램 모음  
+일본학연구소 Database 작업 중 색인 일련번호 추출 작업을 용이하게 할 프로그램
 
 ### 사용 방법   
 
