@@ -90,9 +90,9 @@ class MyApp(QWidget):
     def clickedButton4(self):   # 일련번호 추출
         i = 1   # 분할해서 내보낼 색인어 파일의 넘버
         
-        article_df = pd.read_csv(articlefilename, encoding = 'UTF-8-sig')           # 기사 취합본 파일 불러오기
+        article_df = pd.read_excel(articlefilename)           # 기사 취합본 파일 불러오기
         article_df['일련번호'] = article_df['일련번호'].astype(str)                  # 일련번호 열의 데이터타입을 정수에서 문자열로
-        guideword_list = pd.read_csv(guidewordfilename, encoding = 'UTF-8-sig')     # 색인어 파일 불러오기
+        guideword_list = pd.read_excel(guidewordfilename)     # 색인어 파일 불러오기
         guideword_list = list(guideword_list) # 데이터프레임에서 리스트로
         
         serialnumber_df = pd.DataFrame()    # 최종적으로 파일로 내보낼 색인어+일련번호가 저장될 데이터프레임
@@ -140,12 +140,12 @@ class MyApp(QWidget):
         
         if serialnumber_df.count().sum() > 0: # 모든 반복이 끝나고 남은 데이터프레임 내보내기
             save_path = path + '일련번호' + str(i) + '.csv'
-            serialnumber_df.to_csv(save_path, index = False, encoding = 'UTF-8-sig')
+            serialnumber_df.to_excel(save_path, index = False, encoding = 'UTF-8-sig')
             serialnumber_df = pd.DataFrame()
         
         # 검색 결과가 없는 색인어를 따로 모아 내보내기
         empty_path = path + '결과 없음.csv'
-        empty_df.to_csv(empty_path, index = False, encoding = 'UTF-8-sig')
+        empty_df.to_excel(empty_path, index = False, encoding = 'UTF-8-sig')
         empty_df = pd.DataFrame()
             
         article_df = None
