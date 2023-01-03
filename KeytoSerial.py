@@ -157,7 +157,7 @@ class MyApp(QWidget):
                 serialnumber_list = pd.Series(serialnumber_list, name = new_guideword, dtype = "float64")
                 result = pd.concat([result, serialnumber_list], axis = 1)
 
-            if result.count().sum() > 15000: # 단어 추가 후 result의 데이터 개수 확인해서 너무 크면 내보냄
+            if result.count().sum() > 10000: # 단어 추가 후 result의 데이터 개수 확인해서 너무 크면 내보냄
                 save_path = path + '결과 있음' + str(i) + '.xlsx'
                 result.to_excel(save_path, index = False, encoding = 'UTF-8')
                 del result
